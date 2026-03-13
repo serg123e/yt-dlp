@@ -117,18 +117,16 @@ class YandexMusicTrackIE(YandexMusicBaseIE):
             track_id, 'Downloading track location url JSON', query={'hq': 1}, headers={'X-Retpath-Y': url})
 
         fd_data = self._download_json(
-            download_data['src'], track_id,
-            'Downloading track location JSON',
-            query={'format': 'json'})
+            self._proto_relative_url(download_data['src'], scheme='https:'),
+            track_id, 'Downloading track location JSON', query={'format': 'json'})
         key = hashlib.md5(('XGRlBW9FXlekgbPrRHuSiA' + fd_data['path'][1:] + fd_data['s']).encode()).hexdigest()
-        f_url = 'http://{}/get-mp3/{}/{}?track-id={} '.format(fd_data['host'], key, fd_data['ts'] + fd_data['path'], track['id'])
+        f_url = 'https://{}/get-mp3/{}/{}?track-id={}'.format(fd_data['host'], key, fd_data['ts'] + fd_data['path'], track['id'])
 
         thumbnail = None
         cover_uri = track.get('albums', [{}])[0].get('coverUri')
         if cover_uri:
-            thumbnail = cover_uri.replace('%%', 'orig')
-            if not thumbnail.startswith('http'):
-                thumbnail = 'http://' + thumbnail
+            thumbnail = self._proto_relative_url(
+                '//' + cover_uri.replace('%%', 'orig'), scheme='https:')
 
         track_info = {
             'id': track_id,
@@ -244,7 +242,7 @@ class YandexMusicPlaylistBaseIE(YandexMusicBaseIE):
             if not album_id:
                 continue
             entries.append(self.url_result(
-                f'http://music.yandex.ru/album/{album_id}/track/{track_id}',
+                f'https://music.yandex.ru/album/{album_id}/track/{track_id}',
                 ie=YandexMusicTrackIE.ie_key(), video_id=track_id))
         return entries
 
@@ -446,7 +444,7 @@ class YandexMusicArtistAlbumsIE(YandexMusicArtistBaseIE):
             if not album_id:
                 continue
             entries.append(self.url_result(
-                f'http://music.yandex.ru/album/{album_id}',
+                f'https://music.yandex.ru/album/{album_id}',
                 ie=YandexMusicAlbumIE.ie_key(), video_id=album_id))
         artist = try_get(data, lambda x: x['artist']['name'], str)
         title = '{} - {}'.format(artist or artist_id, 'Альбомы')
