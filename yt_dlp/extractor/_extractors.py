@@ -2513,6 +2513,7 @@ from .yandexmusic import (
     YandexMusicPlaylistIE,
     YandexMusicTrackIE,
 )
+from .yandexmusicsearch import YandexMusicSearchIE
 from .yandexvideo import (
     YandexVideoIE,
     YandexVideoPreviewIE,
